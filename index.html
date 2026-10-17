@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Christine VA" />
 
-  <!-- Luxury Gold "CB" Favicon & App Icon (Replaces Vercel's 'V') -->
+  <!-- Luxury Gold "CB" Favicon & App Icon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23f6e05e'/%3E%3Cstop offset='50%25' stop-color='%23d4af37'/%3E%3Cstop offset='100%25' stop-color='%238c6b14'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='25' fill='%23080808'/%3E%3Ccircle cx='50' cy='50' r='42' fill='none' stroke='url(%23g)' stroke-width='4'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='system-ui, -apple-system, sans-serif' font-weight='900' font-size='36' fill='url(%23g)' letter-spacing='-1'%3ECB%3C/text%3E%3C/svg%3E" />
   
   <link id="appleTouchIcon" rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23f6e05e'/%3E%3Cstop offset='50%25' stop-color='%23d4af37'/%3E%3Cstop offset='100%25' stop-color='%238c6b14'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='25' fill='%23080808'/%3E%3Ccircle cx='50' cy='50' r='42' fill='none' stroke='url(%23g)' stroke-width='4'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='system-ui, -apple-system, sans-serif' font-weight='900' font-size='36' fill='url(%23g)' letter-spacing='-1'%3ECB%3C/text%3E%3C/svg%3E" />
@@ -305,7 +305,7 @@
       </div>
     </section>
 
-    <!-- Sample Works Categories -->
+    <!-- Sample Works Categories (Full Size, High-Detail, Uncropped) -->
     <section class="space-y-12">
       <div class="text-center space-y-2">
         <h2 class="text-3xl font-extrabold uppercase tracking-wider text-white">Sample Works & Portfolio</h2>
@@ -417,7 +417,6 @@
               </linearGradient>
             </defs>
 
-            <!-- Background Glow Ring -->
             <ellipse cx="200" cy="100" rx="140" ry="60" fill="rgba(212,175,55,0.06)" />
 
             <!-- Left ID Card -->
@@ -441,21 +440,18 @@
             <!-- Center Featured Profile Card -->
             <g class="anim-float-1">
               <rect x="150" y="25" width="100" height="145" rx="12" fill="#0d0d0d" stroke="url(#goldCardGrad)" stroke-width="2.5"/>
-              <!-- Profile Avatar -->
               <circle cx="200" cy="70" r="24" fill="#181818" stroke="#d4af37" stroke-width="2"/>
               <circle cx="200" cy="65" r="10" fill="#f6e05e"/>
               <path d="M186 86c0-7 6-11 14-11s14 4 14 11" fill="url(#goldCardGrad)"/>
-              <!-- Data lines -->
               <line x1="170" y1="115" x2="230" y2="115" stroke="#f6e05e" stroke-width="3.5" stroke-linecap="round"/>
               <line x1="175" y1="128" x2="225" y2="128" stroke="#8c6b14" stroke-width="2.5" stroke-linecap="round"/>
               <line x1="182" y1="140" x2="218" y2="140" stroke="#444" stroke-width="2" stroke-linecap="round"/>
             </g>
 
-            <!-- Animated Gold Magnifying Glass Lens -->
+            <!-- Animated Magnifying Glass -->
             <g class="anim-scan">
               <circle cx="215" cy="85" r="34" stroke="url(#goldCardGrad)" stroke-width="4.5" fill="rgba(246,224,94,0.08)" class="anim-glow"/>
               <line x1="240" y1="110" x2="275" y2="145" stroke="url(#goldCardGrad)" stroke-width="6" stroke-linecap="round"/>
-              <!-- Glass Sheen -->
               <path d="M195 68a26 26 0 0 1 30 10" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
             </g>
           </svg>
@@ -499,7 +495,7 @@
         </div>
       </div>
 
-      <!-- VIEW 1: Login Form (WITH GOLD MOBILE DASHBOARD ANIMATION) -->
+      <!-- VIEW 1: Login Form -->
       <div id="loginView" class="p-6 space-y-4 overflow-y-auto flex-1 flex flex-col justify-center">
         <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4 max-w-sm mx-auto w-full">
           
@@ -574,6 +570,15 @@
       <!-- VIEW 2: Authenticated Admin Panel -->
       <div id="adminPanel" class="flex flex-col flex-1 overflow-hidden hidden">
         
+        <!-- LIVE SUPABASE CLOUD STATUS INDICATOR -->
+        <div id="cloudStatusBar" class="px-6 py-2 bg-dark-950 border-b border-dark-700/80 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2">
+            <span id="cloudStatusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+            <span id="cloudStatusText" class="text-neutral-300 font-medium">Checking Cloud Sync Status...</span>
+          </div>
+          <button onclick="checkCloudConnection()" class="text-[11px] text-gold-400 hover:underline">Re-check</button>
+        </div>
+
         <div class="flex border-b border-dark-700 bg-dark-950/70 px-6 gap-2 flex-shrink-0 overflow-x-auto text-xs">
           <button onclick="switchTab('tab-home')" id="btn-tab-home" class="py-3 px-3 font-semibold text-gold-400 border-b-2 border-gold-400 transition-colors whitespace-nowrap">
             1. Home
@@ -743,14 +748,49 @@
 
   <script>
     // =========================================================================
-    // ⚡ SUPABASE CLOUD CONFIGURATION (PASTE YOUR KEYS HERE)
+    // ⚡ SUPABASE CLOUD CONFIGURATION (YOUR REAL KEYS PLUGGED IN)
     // =========================================================================
-    const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL_HERE"; 
-    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY_HERE";
+    const SUPABASE_URL = "https://yvkjbnhbxhckodqbgfhe.supabase.co"; 
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2a2pibmhieGhja29kcWJnZmhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4ODIyNjAsImV4cCI6MjEwMDQ1ODI2MH0.NFaO0zV8eyl8IWK3eQZvIzhwkKPIuckDBQRidzLebP8";
 
     let supabaseClient = null;
-    if (SUPABASE_URL.startsWith("http") && !SUPABASE_URL.includes("YOUR_SUPABASE")) {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    if (SUPABASE_URL.startsWith("http")) {
+      try {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      } catch (e) {
+        console.error("Supabase init error:", e);
+      }
+    }
+
+    // Live Cloud Status Check
+    async function checkCloudConnection() {
+      const dot = document.getElementById('cloudStatusDot');
+      const text = document.getElementById('cloudStatusText');
+      if (!dot || !text) return;
+
+      if (!supabaseClient) {
+        dot.className = "w-2.5 h-2.5 rounded-full bg-amber-400";
+        text.className = "text-amber-400 font-medium";
+        text.textContent = "Supabase client not loaded. Saving locally.";
+        return;
+      }
+
+      try {
+        const { data, error } = await supabaseClient.from('portfolio').select('id').eq('id', 1);
+        if (error) {
+          dot.className = "w-2.5 h-2.5 rounded-full bg-red-400";
+          text.className = "text-red-400 font-medium";
+          text.textContent = "Database Error: " + error.message;
+        } else {
+          dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400";
+          text.className = "text-emerald-400 font-medium";
+          text.textContent = "Connected to Supabase Cloud (Live syncing active)";
+        }
+      } catch (err) {
+        dot.className = "w-2.5 h-2.5 rounded-full bg-red-400";
+        text.className = "text-red-400 font-medium";
+        text.textContent = "Connection failed: Check internet.";
+      }
     }
 
     const SOCIAL_SVGS = {
@@ -856,7 +896,7 @@
     }
 
     // =========================================================================
-    // ⚡ SUPABASE CLOUD SYNC ENGINE
+    // ⚡ SUPABASE CLOUD SYNC & FALLBACK ENGINE
     // =========================================================================
     async function saveDataSafely(data) {
       try {
@@ -866,7 +906,10 @@
       if (supabaseClient) {
         try {
           const { error } = await supabaseClient.from('portfolio').upsert({ id: 1, content: data });
-          if (error) console.error("Supabase write error:", error);
+          if (error) {
+            console.error("Supabase write error:", error);
+            alert("⚠️ Notice: Could not sync to cloud database (" + error.message + "). Saved to your tablet memory only.");
+          }
         } catch (err) {
           console.error("Cloud sync error:", err);
         }
@@ -1109,6 +1152,7 @@
       document.getElementById('adminPanel').classList.remove('hidden');
       document.getElementById('adminLogoutBtn').classList.remove('hidden');
       populateAdminFields();
+      checkCloudConnection();
       switchTab('tab-home');
     }
 
@@ -1338,7 +1382,7 @@
         await saveDataSafely(siteData);
         renderWebsite();
         closeSettingsModal();
-        alert('All updates have been saved and synced to the cloud!');
+        alert('All updates have been saved!');
       } catch (err) {
         console.error("Save failure:", err);
       }

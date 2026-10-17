@@ -60,22 +60,33 @@
       transform: translateY(-2px);
       box-shadow: 0 10px 30px -10px rgba(212, 175, 55, 0.2);
     }
+    /* Smooth CSS Keyframe Animations */
     @keyframes floatSlow {
       0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
+      50% { transform: translateY(-8px); }
     }
     @keyframes floatFast {
       0%, 100% { transform: translateY(0px) rotate(0deg); }
-      50% { transform: translateY(-7px) rotate(2deg); }
+      50% { transform: translateY(-6px) rotate(1.5deg); }
     }
     @keyframes barPulse {
       0%, 100% { transform: scaleY(1); }
       50% { transform: scaleY(1.15); }
     }
+    @keyframes scanMotion {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(12px, -8px); }
+    }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.8; filter: drop-shadow(0 0 4px rgba(212,175,55,0.4)); }
+      50% { opacity: 1; filter: drop-shadow(0 0 14px rgba(212,175,55,0.8)); }
+    }
     .anim-float-1 { animation: floatSlow 4s ease-in-out infinite; }
     .anim-float-2 { animation: floatFast 3s ease-in-out infinite 0.5s; }
     .anim-bar-1 { transform-origin: bottom; animation: barPulse 2.8s ease-in-out infinite; }
     .anim-bar-2 { transform-origin: bottom; animation: barPulse 3.4s ease-in-out infinite 0.7s; }
+    .anim-scan { animation: scanMotion 3.5s ease-in-out infinite; }
+    .anim-glow { animation: pulseGlow 2.5s ease-in-out infinite; }
   </style>
 </head>
 <body class="bg-dark-950 text-neutral-200 font-sans min-h-screen selection:bg-gold-500 selection:text-black">
@@ -373,11 +384,67 @@
     </div>
   </div>
 
-  <!-- About Me Modal -->
+  <!-- ======================== ABOUT ME MODAL (WITH GOLD CANDIDATE EVALUATION ANIMATION) ======================== -->
   <div id="aboutModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4">
     <div class="bg-dark-900 border border-gold-500/40 rounded-3xl w-full max-w-2xl p-6 md:p-8 space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
       <button onclick="closeAboutModal()" class="absolute top-6 right-6 text-neutral-400 hover:text-white text-lg">✕</button>
       
+      <!-- BESPOKE GOLD ANIMATION: Candidate Profile Vetting & Scanner (Image 3 inspired) -->
+      <div class="w-full flex justify-center py-2">
+        <div class="relative w-72 h-36 flex items-center justify-center">
+          <svg viewBox="0 0 400 200" class="w-full h-full drop-shadow-[0_4px_20px_rgba(212,175,55,0.25)]" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="goldCardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#f6e05e"/>
+                <stop offset="100%" stop-color="#8c6b14"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Background Glow Ring -->
+            <ellipse cx="200" cy="100" rx="140" ry="60" fill="rgba(212,175,55,0.06)" />
+
+            <!-- Left ID Card -->
+            <g class="anim-float-2">
+              <rect x="50" y="45" width="85" height="115" rx="10" fill="#141414" stroke="#262626" stroke-width="2"/>
+              <circle cx="92.5" cy="80" r="18" fill="#1f1f1f" stroke="rgba(212,175,55,0.3)" stroke-width="1.5"/>
+              <path d="M84 94c0-6 4-9 8.5-9s8.5 3 8.5 9" fill="rgba(212,175,55,0.5)"/>
+              <line x1="68" y1="120" x2="117" y2="120" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+              <line x1="75" y1="132" x2="110" y2="132" stroke="#262626" stroke-width="2.5" stroke-linecap="round"/>
+            </g>
+
+            <!-- Right ID Card -->
+            <g class="anim-float-2" style="animation-delay: 0.8s;">
+              <rect x="265" y="45" width="85" height="115" rx="10" fill="#141414" stroke="#262626" stroke-width="2"/>
+              <circle cx="307.5" cy="80" r="18" fill="#1f1f1f" stroke="rgba(212,175,55,0.3)" stroke-width="1.5"/>
+              <path d="M299 94c0-6 4-9 8.5-9s8.5 3 8.5 9" fill="rgba(212,175,55,0.5)"/>
+              <line x1="283" y1="120" x2="332" y2="120" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+              <line x1="290" y1="132" x2="325" y2="132" stroke="#262626" stroke-width="2.5" stroke-linecap="round"/>
+            </g>
+
+            <!-- Center Featured Profile Card -->
+            <g class="anim-float-1">
+              <rect x="150" y="25" width="100" height="145" rx="12" fill="#0d0d0d" stroke="url(#goldCardGrad)" stroke-width="2.5"/>
+              <!-- Profile Avatar -->
+              <circle cx="200" cy="70" r="24" fill="#181818" stroke="#d4af37" stroke-width="2"/>
+              <circle cx="200" cy="65" r="10" fill="#f6e05e"/>
+              <path d="M186 86c0-7 6-11 14-11s14 4 14 11" fill="url(#goldCardGrad)"/>
+              <!-- Data lines -->
+              <line x1="170" y1="115" x2="230" y2="115" stroke="#f6e05e" stroke-width="3.5" stroke-linecap="round"/>
+              <line x1="175" y1="128" x2="225" y2="128" stroke="#8c6b14" stroke-width="2.5" stroke-linecap="round"/>
+              <line x1="182" y1="140" x2="218" y2="140" stroke="#444" stroke-width="2" stroke-linecap="round"/>
+            </g>
+
+            <!-- Animated Gold Magnifying Glass Lens -->
+            <g class="anim-scan">
+              <circle cx="215" cy="85" r="34" stroke="url(#goldCardGrad)" stroke-width="4.5" fill="rgba(246,224,94,0.08)" class="anim-glow"/>
+              <line x1="240" y1="110" x2="275" y2="145" stroke="url(#goldCardGrad)" stroke-width="6" stroke-linecap="round"/>
+              <!-- Glass Sheen -->
+              <path d="M195 68a26 26 0 0 1 30 10" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+
       <div class="space-y-2">
         <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-400 text-xs uppercase tracking-widest font-semibold">
           <i data-lucide="info" class="w-3.5 h-3.5"></i> About Me
@@ -399,14 +466,15 @@
     </div>
   </div>
 
-  <!-- Settings / Admin Modal -->
+  <!-- ======================== SETTINGS / ADMIN MODAL ======================== -->
   <div id="settingsModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4">
     <div class="bg-dark-900 border border-gold-500/40 rounded-2xl w-full max-w-3xl h-[88vh] flex flex-col shadow-2xl overflow-hidden">
       
+      <!-- Top Modal Header (Clean without 'SUPABASE CONNECTED') -->
       <div class="flex items-center justify-between border-b border-dark-700 px-6 py-4 bg-dark-950 flex-shrink-0">
         <div class="flex items-center gap-2">
           <i data-lucide="sliders" class="w-5 h-5 text-gold-400"></i>
-          <h3 class="text-sm font-bold text-white uppercase tracking-wider">Portfolio Management (Supabase Connected)</h3>
+          <h3 class="text-sm font-bold text-white uppercase tracking-wider">Portfolio Management</h3>
         </div>
         <div class="flex items-center gap-3">
           <button id="adminLogoutBtn" onclick="handleLogout()" class="hidden text-xs text-red-400 hover:text-red-300 font-semibold px-2 py-1 rounded border border-red-500/30 hover:border-red-400 transition-colors">
@@ -416,9 +484,71 @@
         </div>
       </div>
 
-      <!-- Login View -->
+      <!-- VIEW 1: Login Form (WITH GOLD MOBILE DASHBOARD ANIMATION) -->
       <div id="loginView" class="p-6 space-y-4 overflow-y-auto flex-1 flex flex-col justify-center">
         <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4 max-w-sm mx-auto w-full">
+          
+          <!-- BESPOKE GOLD ANIMATION: Smartphone Task Dashboard & Admin Verification (Image 4 inspired) -->
+          <div class="w-full flex justify-center pb-2">
+            <div class="relative w-44 h-44 flex items-center justify-center">
+              <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-[0_4px_25px_rgba(212,175,55,0.3)]" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="phoneGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#f6e05e"/>
+                    <stop offset="50%" stop-color="#d4af37"/>
+                    <stop offset="100%" stop-color="#8c6b14"/>
+                  </linearGradient>
+                </defs>
+
+                <!-- Floating Decor Elements -->
+                <circle cx="35" cy="40" r="14" stroke="#d4af37" stroke-width="1.5" stroke-dasharray="3 3" class="anim-float-2"/>
+                <polyline points="35,32 35,40 41,40" stroke="#f6e05e" stroke-width="1.5"/>
+
+                <!-- Smartphone Frame -->
+                <g class="anim-float-1">
+                  <!-- Phone Outer Body -->
+                  <rect x="52" y="15" width="96" height="170" rx="18" fill="#0d0d0d" stroke="url(#phoneGold)" stroke-width="2.5"/>
+                  <!-- Speaker notch -->
+                  <line x1="88" y1="24" x2="112" y2="24" stroke="#444" stroke-width="2.5" stroke-linecap="round"/>
+
+                  <!-- Screen Content Area -->
+                  <rect x="58" y="32" width="84" height="142" rx="10" fill="#141414"/>
+
+                  <!-- Widget 1: Task Verification Item -->
+                  <rect x="64" y="40" width="72" height="32" rx="6" fill="#1b1b1b" stroke="rgba(212,175,55,0.3)" stroke-width="1"/>
+                  <circle cx="76" cy="56" r="7" fill="url(#phoneGold)"/>
+                  <polyline points="73,56 75,58 79,53" stroke="#000" stroke-width="1.5" stroke-linecap="round"/>
+                  <line x1="88" y1="52" x2="126" y2="52" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="88" y1="60" x2="116" y2="60" stroke="#666" stroke-width="1.5" stroke-linecap="round"/>
+
+                  <!-- Widget 2: Clock / Time Management Widget -->
+                  <rect x="64" y="78" width="72" height="32" rx="6" fill="#1b1b1b" stroke="rgba(212,175,55,0.3)" stroke-width="1"/>
+                  <circle cx="76" cy="94" r="7" stroke="#f6e05e" stroke-width="1.5"/>
+                  <line x1="76" y1="94" x2="76" y2="90" stroke="#f6e05e" stroke-width="1.5"/>
+                  <line x1="76" y1="94" x2="79" y2="94" stroke="#f6e05e" stroke-width="1.5"/>
+                  <line x1="88" y1="90" x2="124" y2="90" stroke="#f6e05e" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="88" y1="98" x2="112" y2="98" stroke="#666" stroke-width="1.5" stroke-linecap="round"/>
+
+                  <!-- Widget 3: Live Status Indicator -->
+                  <rect x="64" y="116" width="72" height="30" rx="6" fill="#181818" stroke="rgba(212,175,55,0.2)" stroke-width="1"/>
+                  <text x="70" y="129" fill="#f6e05e" font-size="8" font-family="monospace" font-weight="bold">9:36 AM</text>
+                  <circle cx="124" cy="126" r="3" fill="#22c55e" class="anim-glow"/>
+                  <line x1="70" y1="138" x2="128" y2="138" stroke="#444" stroke-width="1.5" stroke-linecap="round"/>
+
+                  <!-- Action Buttons -->
+                  <rect x="66" y="152" width="30" height="12" rx="3" fill="url(#phoneGold)"/>
+                  <rect x="102" y="152" width="30" height="12" rx="3" fill="#2a2a2a"/>
+                </g>
+
+                <!-- Floating Check Bubble (Right) -->
+                <g class="anim-float-2">
+                  <circle cx="162" cy="75" r="15" fill="#141414" stroke="url(#phoneGold)" stroke-width="2" class="anim-glow"/>
+                  <polyline points="156,75 160,79 168,71" stroke="#f6e05e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </g>
+              </svg>
+            </div>
+          </div>
+
           <div class="text-center space-y-1">
             <h4 class="text-base font-bold text-white">Admin Authentication</h4>
             <p class="text-xs text-neutral-400">Enter your credentials to manage your portfolio</p>
@@ -438,7 +568,7 @@
         </form>
       </div>
 
-      <!-- Authenticated Admin Panel -->
+      <!-- VIEW 2: Authenticated Admin Panel -->
       <div id="adminPanel" class="flex flex-col flex-1 overflow-hidden hidden">
         
         <div class="flex border-b border-dark-700 bg-dark-950/70 px-6 gap-2 flex-shrink-0 overflow-x-auto text-xs">
@@ -612,8 +742,8 @@
     // =========================================================================
     // ⚡ SUPABASE CLOUD CONFIGURATION (PASTE YOUR KEYS HERE)
     // =========================================================================
-    const SUPABASE_URL = "https://yvkjbnhbxhckodqbgfhe.supabase.co"; 
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2a2pibmhieGhja29kcWJnZmhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4ODIyNjAsImV4cCI6MjEwMDQ1ODI2MH0.NFaO0zV8eyl8IWK3eQZvIzhwkKPIuckDBQRidzLebP8";
+    const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL_HERE"; 
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY_HERE";
 
     let supabaseClient = null;
     if (SUPABASE_URL.startsWith("http") && !SUPABASE_URL.includes("YOUR_SUPABASE")) {
@@ -727,12 +857,10 @@
     // ⚡ SUPABASE CLOUD SYNC ENGINE
     // =========================================================================
     async function saveDataSafely(data) {
-      // 1. Local backup
       try {
         localStorage.setItem('va_portfolio_live_v2', JSON.stringify(data));
       } catch (e) {}
 
-      // 2. Cloud sync to Supabase
       if (supabaseClient) {
         try {
           const { error } = await supabaseClient.from('portfolio').upsert({ id: 1, content: data });
@@ -744,7 +872,6 @@
     }
 
     async function loadDataSafely() {
-      // 1. Try to load from Supabase Cloud first
       if (supabaseClient) {
         try {
           const { data, error } = await supabaseClient.from('portfolio').select('content').eq('id', 1).single();
@@ -757,7 +884,6 @@
         }
       }
 
-      // 2. Fallback to LocalStorage
       try {
         const local = localStorage.getItem('va_portfolio_live_v2');
         if (local) return JSON.parse(local);

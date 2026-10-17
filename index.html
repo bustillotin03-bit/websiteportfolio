@@ -117,9 +117,12 @@
 
     <!-- Hero / Profile Section -->
     <section id="heroSection" class="flex flex-col md:flex-row items-center gap-10 pt-4">
-      <div class="relative">
-        <div class="w-40 h-40 md:w-48 md:h-48 rounded-full gold-border p-1.5 bg-dark-800 flex items-center justify-center overflow-hidden shadow-2xl">
-          <div id="profileImageDisplay" class="w-full h-full rounded-full flex flex-col items-center justify-center bg-dark-700 text-neutral-500 text-center p-4"></div>
+      <!-- Auto-shaped circular profile frame -->
+      <div class="relative flex-shrink-0">
+        <div class="w-44 h-44 md:w-52 md:h-52 rounded-full gold-border p-1 bg-dark-800 shadow-[0_0_25px_rgba(212,175,55,0.2)]">
+          <div id="profileImageDisplay" class="w-full h-full rounded-full overflow-hidden bg-dark-700 flex items-center justify-center">
+            <!-- Image auto-shapes inside here -->
+          </div>
         </div>
       </div>
 
@@ -470,7 +473,7 @@
               <textarea id="inputBio" rows="2" class="w-full bg-dark-950 border border-dark-600 rounded px-3 py-2 text-sm text-white focus:border-gold-500"></textarea>
             </div>
             <div class="p-3 bg-dark-950 rounded-xl border border-dark-600 space-y-2">
-              <label class="text-xs text-neutral-300 font-semibold block">Profile Photo (Upload from Gallery / Files)</label>
+              <label class="text-xs text-neutral-300 font-semibold block">Profile Photo (Auto-shaped to circle frame)</label>
               <div class="flex items-center gap-3">
                 <input id="profileFileInput" type="file" accept="image/*" class="text-xs text-neutral-400 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-gold-500 file:text-black cursor-pointer" />
                 <button onclick="removeProfilePhoto()" type="button" class="text-xs text-red-400 hover:underline">Remove</button>
@@ -504,7 +507,7 @@
 
           <!-- TAB 3: SAMPLE WORKS -->
           <div id="tab-works" class="tab-pane space-y-4 hidden">
-            <h4 class="text-xs font-bold uppercase tracking-widest text-gold-400">Sample Works (Multiple Images Support)</h4>
+            <h4 class="text-xs font-bold uppercase tracking-widest text-gold-400">Sample Works (Add Images to Categories)</h4>
             <div class="p-4 bg-dark-950 rounded-xl border border-dark-600 space-y-3">
               <p class="text-xs font-semibold text-white">Add New Sample Screenshot or Project</p>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
@@ -527,7 +530,7 @@
                 <input id="workFileInput" type="file" accept="image/*" class="text-xs text-neutral-400 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-dark-700 file:text-gold-400 cursor-pointer" />
               </div>
               <button onclick="addSampleWorkItem()" type="button" class="px-4 py-2 bg-dark-700 hover:bg-gold-500 hover:text-black font-semibold rounded text-xs transition-colors">
-                + Add To Category
+                + Upload & Save To Category Now
               </button>
             </div>
             <div id="sampleWorksAdminList" class="space-y-3 pt-2"></div>
@@ -585,9 +588,9 @@
 
         </div>
 
-        <!-- Sticky Bottom Bar (Exclusively Visible When Logged In) -->
+        <!-- Sticky Bottom Bar -->
         <div class="px-6 py-4 bg-dark-950 border-t border-dark-700 flex justify-between items-center flex-shrink-0">
-          <span class="text-xs text-neutral-400">Changes will apply instantly</span>
+          <span class="text-xs text-neutral-400">Changes apply immediately</span>
           <button onclick="saveSettings()" type="button" class="px-6 py-2.5 gold-gradient text-black font-extrabold uppercase tracking-wider text-xs rounded-lg hover:brightness-110 shadow-lg active:scale-95 transition-all">
             Save All Changes
           </button>
@@ -656,8 +659,7 @@
     let siteData = DEFAULT_DATA;
     let isAuthenticated = false;
 
-    // High-Efficiency Client-Side Canvas Image Compressor
-    // Shrinks 10MB mobile/tablet photos into lightweight, high-clarity 45KB images
+    // High-Efficiency Client-Side Image Compressor (Auto shapes & balances image memory)
     function compressImageFile(file, maxDimension = 800, quality = 0.75) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -681,8 +683,6 @@
             canvas.width = width;
             canvas.height = height;
             const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#0a0a0a';
-            ctx.fillRect(0, 0, width, height);
             ctx.drawImage(img, 0, 0, width, height);
             resolve(canvas.toDataURL('image/jpeg', quality));
           };
@@ -692,72 +692,22 @@
       });
     }
 
-    // ================= DUAL-LAYER STORAGE ENGINE =================
-    // Saves to LocalStorage and IndexedDB concurrently for 100% reliability
-    const DB_NAME = 'va_portfolio_store_v5';
-    const DB_VERSION = 1;
-    const STORE_NAME = 'portfolio';
-
-    function getIDB() {
-      return new Promise((resolve, reject) => {
-        if (!window.indexedDB) return reject(new Error('IndexedDB unsupported'));
-        const req = window.indexedDB.open(DB_NAME, DB_VERSION);
-        req.onupgradeneeded = (e) => {
-          const db = e.target.result;
-          if (!db.objectStoreNames.contains(STORE_NAME)) {
-            db.createObjectStore(STORE_NAME);
-          }
-        };
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => reject(req.error || new Error('IDB open failed'));
-      });
-    }
-
+    // Direct, Reliable Storage Engine
     async function saveDataSafely(data) {
-      // 1. Always save to LocalStorage first (with compressed images, this takes < 300KB)
       try {
-        localStorage.setItem('va_portfolio_master_backup', JSON.stringify(data));
+        localStorage.setItem('va_portfolio_master_live_v1', JSON.stringify(data));
       } catch (e) {
-        console.warn('LocalStorage save warning:', e);
-      }
-
-      // 2. Also save to IndexedDB if browser allows
-      try {
-        const db = await getIDB();
-        await new Promise((resolve, reject) => {
-          const tx = db.transaction(STORE_NAME, 'readwrite');
-          const store = tx.objectStore(STORE_NAME);
-          const req = store.put(data, 'main_data');
-          req.onsuccess = () => { db.close(); resolve(); };
-          req.onerror = () => { db.close(); reject(req.error); };
-          tx.oncomplete = () => db.close();
-        });
-      } catch (err) {
-        // If IndexedDB has permission restrictions on mobile Chrome, LocalStorage succeeded so we are safe!
-        console.warn('IndexedDB write skipped:', err);
+        console.warn('LocalStorage save error:', e);
       }
     }
 
-    async function loadDataSafely() {
-      // Try LocalStorage first (fastest and most reliable on tablets)
+    function loadDataSafely() {
       try {
-        const local = localStorage.getItem('va_portfolio_master_backup');
+        const local = localStorage.getItem('va_portfolio_master_live_v1') || 
+                      localStorage.getItem('va_portfolio_master_backup') || 
+                      localStorage.getItem('va_portfolio_data_v3');
         if (local) return JSON.parse(local);
       } catch (e) {}
-
-      // Try IndexedDB second
-      try {
-        const db = await getIDB();
-        const data = await new Promise((resolve) => {
-          const tx = db.transaction(STORE_NAME, 'readonly');
-          const store = tx.objectStore(STORE_NAME);
-          const req = store.get('main_data');
-          req.onsuccess = () => { db.close(); resolve(req.result); };
-          req.onerror = () => { db.close(); resolve(null); };
-        });
-        if (data) return data;
-      } catch (e) {}
-
       return null;
     }
 
@@ -826,7 +776,7 @@
       }
     }
 
-    // Render Website UI
+    // Render Website UI with Auto-Shaped Circle Profile Photo
     function renderWebsite() {
       document.getElementById('heroName').textContent = siteData.name;
       document.getElementById('heroTitle').textContent = siteData.title;
@@ -834,11 +784,14 @@
 
       const profileContainer = document.getElementById('profileImageDisplay');
       if (siteData.profileImage && siteData.profileImage.trim() !== '') {
-        profileContainer.innerHTML = `<img src="${siteData.profileImage}" alt="Profile" class="w-full h-full object-cover">`;
+        // Auto-shaped to circle frame with object-cover and top alignment
+        profileContainer.innerHTML = `<img src="${siteData.profileImage}" alt="Profile" class="w-full h-full object-cover object-top rounded-full shadow-inner">`;
       } else {
         profileContainer.innerHTML = `
-          <i data-lucide="user" class="w-12 h-12 stroke-[1.5] text-gold-500 mb-1"></i>
-          <span class="text-[11px] text-neutral-400">Empty Image Slot</span>
+          <div class="flex flex-col items-center justify-center text-neutral-500">
+            <i data-lucide="user" class="w-12 h-12 stroke-[1.5] text-gold-500 mb-1"></i>
+            <span class="text-[11px] text-neutral-400">Empty Image Slot</span>
+          </div>
         `;
       }
 
@@ -849,6 +802,7 @@
         </div>
       `).join('');
 
+      // Sample Works
       const sampleContainer = document.getElementById('sampleCategoriesContainer');
       sampleContainer.innerHTML = siteData.sampleCategories.map(cat => {
         let itemsHtml = '';
@@ -886,6 +840,7 @@
         `;
       }).join('');
 
+      // Feedback
       const feedbackContainer = document.getElementById('feedbackContainer');
       feedbackContainer.innerHTML = siteData.testimonials.map(t => `
         <div class="bg-dark-900 gold-border rounded-2xl p-6 space-y-4 flex flex-col justify-between">
@@ -909,6 +864,7 @@
         </div>
       `).join('');
 
+      // Socials
       const socialContainer = document.getElementById('socialLinksContainer');
       const channels = ['linkedin', 'instagram', 'twitter', 'facebook', 'whatsapp', 'telegram'];
       socialContainer.innerHTML = channels.map(key => {
@@ -964,7 +920,7 @@
       switchTab('tab-home');
     }
 
-    // Log Out
+    // Explicit Log Out (Only triggers when clicking the Log Out button)
     function handleLogout() {
       isAuthenticated = false;
       document.getElementById('adminUsername').value = '';
@@ -972,7 +928,7 @@
       document.getElementById('adminPanel').classList.add('hidden');
       document.getElementById('adminLogoutBtn').classList.add('hidden');
       document.getElementById('loginView').classList.remove('hidden');
-      alert('You have been logged out.');
+      alert('You have logged out.');
     }
 
     function populateAdminFields() {
@@ -994,7 +950,7 @@
       renderFeedbackAdminList();
     }
 
-    // Instant Photo Compression on File Select
+    // Profile photo upload with instant circular shape & instant auto-save
     document.addEventListener('DOMContentLoaded', () => {
       const pInput = document.getElementById('profileFileInput');
       if (pInput) {
@@ -1002,7 +958,9 @@
           if (this.files && this.files[0]) {
             try {
               siteData.profileImage = await compressImageFile(this.files[0], 600, 0.75);
-              alert('Profile photo ready! Tap "Save All Changes" to finish.');
+              await saveDataSafely(siteData);
+              renderWebsite();
+              alert('Profile photo auto-shaped to circle! Tap "Save All Changes" to confirm.');
             } catch (err) {
               alert('Error processing photo: ' + err.message);
             }
@@ -1016,7 +974,8 @@
           if (this.files && this.files[0]) {
             try {
               siteData.aboutImage = await compressImageFile(this.files[0], 800, 0.75);
-              alert('About photo ready! Tap "Save All Changes" to finish.');
+              await saveDataSafely(siteData);
+              alert('About photo ready! Tap "Save All Changes" to confirm.');
             } catch (err) {
               alert('Error processing photo: ' + err.message);
             }
@@ -1028,16 +987,19 @@
     function removeProfilePhoto() {
       siteData.profileImage = '';
       document.getElementById('profileFileInput').value = '';
-      alert('Profile photo removed. Remember to tap "Save All Changes".');
+      saveDataSafely(siteData);
+      renderWebsite();
+      alert('Profile photo removed.');
     }
 
     function removeAboutPhoto() {
       siteData.aboutImage = '';
       document.getElementById('aboutFileInput').value = '';
-      alert('About photo removed. Remember to tap "Save All Changes".');
+      saveDataSafely(siteData);
+      alert('About photo removed.');
     }
 
-    // Add Image to Specific Category
+    // Add Image to Category & Auto-Persist immediately
     async function addSampleWorkItem() {
       const categoryTitle = document.getElementById('workCategorySelect').value;
       const title = document.getElementById('workTitleInput').value.trim();
@@ -1064,18 +1026,24 @@
         if (!targetCat.items) targetCat.items = [];
         targetCat.items.push({ id: Date.now(), title, url: compressedUrl });
 
+        // Save immediately to storage so it will never disappear
+        await saveDataSafely(siteData);
+
         document.getElementById('workTitleInput').value = '';
         fileInput.value = '';
         renderSampleWorksAdminList();
-        alert('Image added to ' + categoryTitle + '! Click "Save All Changes" to finalize.');
+        renderWebsite();
+        alert('Image successfully added to ' + categoryTitle + '!');
       } catch (err) {
-        alert('Could not load image: ' + err.message);
+        alert('Could not process image: ' + err.message);
       }
     }
 
-    function deleteWorkItem(catIndex, itemIndex) {
+    async function deleteWorkItem(catIndex, itemIndex) {
       siteData.sampleCategories[catIndex].items.splice(itemIndex, 1);
+      await saveDataSafely(siteData);
       renderSampleWorksAdminList();
+      renderWebsite();
     }
 
     function renderSampleWorksAdminList() {
@@ -1096,7 +1064,7 @@
     }
 
     // Feedback Management
-    function addFeedbackItem() {
+    async function addFeedbackItem() {
       const client = document.getElementById('feedbackClient').value.trim();
       const company = document.getElementById('feedbackCompany').value.trim();
       const text = document.getElementById('feedbackText').value.trim();
@@ -1107,15 +1075,19 @@
       }
 
       siteData.testimonials.push({ id: Date.now(), client, company, service: 'Email Management', text });
+      await saveDataSafely(siteData);
       document.getElementById('feedbackClient').value = '';
       document.getElementById('feedbackCompany').value = '';
       document.getElementById('feedbackText').value = '';
       renderFeedbackAdminList();
+      renderWebsite();
     }
 
-    function deleteFeedbackItem(index) {
+    async function deleteFeedbackItem(index) {
       siteData.testimonials.splice(index, 1);
+      await saveDataSafely(siteData);
       renderFeedbackAdminList();
+      renderWebsite();
     }
 
     function renderFeedbackAdminList() {
@@ -1131,7 +1103,7 @@
       `).join('');
     }
 
-    // Bulletproof Save Handler
+    // Save All Changes (Keeps you logged in)
     async function saveSettings() {
       try {
         siteData.name = document.getElementById('inputName')?.value.trim() || siteData.name;
@@ -1157,18 +1129,15 @@
         await saveDataSafely(siteData);
         renderWebsite();
         closeSettingsModal();
-        alert('All changes and photos have been successfully saved!');
+        alert('All updates have been saved successfully!');
       } catch (err) {
         console.error("Save failure:", err);
-        alert('Save notice: Saved to browser cache.');
-        renderWebsite();
-        closeSettingsModal();
       }
     }
 
     // Initial Load
-    (async function init() {
-      const stored = await loadDataSafely();
+    (function init() {
+      const stored = loadDataSafely();
       if (stored) {
         siteData = stored;
       }

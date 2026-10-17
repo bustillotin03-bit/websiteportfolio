@@ -117,12 +117,9 @@
 
     <!-- Hero / Profile Section -->
     <section id="heroSection" class="flex flex-col md:flex-row items-center gap-10 pt-4">
-      <!-- Auto-shaped circular profile frame -->
       <div class="relative flex-shrink-0">
         <div class="w-44 h-44 md:w-52 md:h-52 rounded-full gold-border p-1 bg-dark-800 shadow-[0_0_25px_rgba(212,175,55,0.2)]">
-          <div id="profileImageDisplay" class="w-full h-full rounded-full overflow-hidden bg-dark-700 flex items-center justify-center">
-            <!-- Image auto-shapes inside here -->
-          </div>
+          <div id="profileImageDisplay" class="w-full h-full rounded-full overflow-hidden bg-dark-700 flex items-center justify-center"></div>
         </div>
       </div>
 
@@ -290,7 +287,7 @@
       </div>
     </section>
 
-    <!-- Sample Works Categories (Multi-Image Support) -->
+    <!-- Sample Works Categories -->
     <section class="space-y-12">
       <div class="text-center space-y-2">
         <h2 class="text-3xl font-extrabold uppercase tracking-wider text-white">Sample Works & Portfolio</h2>
@@ -411,7 +408,7 @@
         </div>
       </div>
 
-      <!-- VIEW 1: Login Form (Shown before authentication) -->
+      <!-- VIEW 1: Login Form -->
       <div id="loginView" class="p-6 space-y-4 overflow-y-auto flex-1 flex flex-col justify-center">
         <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4 max-w-sm mx-auto w-full">
           <div class="text-center space-y-1">
@@ -473,7 +470,7 @@
               <textarea id="inputBio" rows="2" class="w-full bg-dark-950 border border-dark-600 rounded px-3 py-2 text-sm text-white focus:border-gold-500"></textarea>
             </div>
             <div class="p-3 bg-dark-950 rounded-xl border border-dark-600 space-y-2">
-              <label class="text-xs text-neutral-300 font-semibold block">Profile Photo (Auto-shaped to circle frame)</label>
+              <label class="text-xs text-neutral-300 font-semibold block">Profile Photo (Auto-crops to circle)</label>
               <div class="flex items-center gap-3">
                 <input id="profileFileInput" type="file" accept="image/*" class="text-xs text-neutral-400 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-gold-500 file:text-black cursor-pointer" />
                 <button onclick="removeProfilePhoto()" type="button" class="text-xs text-red-400 hover:underline">Remove</button>
@@ -522,15 +519,23 @@
                 </div>
                 <div>
                   <label class="text-neutral-400 block mb-1">Project / Screenshot Title</label>
-                  <input id="workTitleInput" type="text" placeholder="e.g. Asana Dashboard" class="w-full bg-dark-900 border border-dark-600 rounded p-2 text-white" />
+                  <input id="workTitleInput" type="text" placeholder="e.g. Notion Dashboard" class="w-full bg-dark-900 border border-dark-600 rounded p-2 text-white" />
                 </div>
               </div>
+              
               <div>
                 <label class="text-neutral-400 block text-xs mb-1">Choose Photo from Gallery / Files</label>
                 <input id="workFileInput" type="file" accept="image/*" class="text-xs text-neutral-400 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-dark-700 file:text-gold-400 cursor-pointer" />
               </div>
-              <button onclick="addSampleWorkItem()" type="button" class="px-4 py-2 bg-dark-700 hover:bg-gold-500 hover:text-black font-semibold rounded text-xs transition-colors">
-                + Upload & Save To Category Now
+
+              <!-- Live Ready Thumbnail Preview -->
+              <div id="previewWorkBox" class="hidden flex items-center gap-3 p-2 bg-dark-900 border border-dark-700 rounded-lg">
+                <img id="previewWorkImg" src="" class="w-12 h-12 object-cover rounded border border-gold-500/50" />
+                <span class="text-xs text-emerald-400 font-medium">Photo processed successfully! Ready to save.</span>
+              </div>
+
+              <button onclick="addSampleWorkItem()" type="button" class="w-full py-2.5 bg-dark-700 hover:bg-gold-500 hover:text-black font-semibold rounded text-xs transition-colors">
+                + Add To Category & Save Now
               </button>
             </div>
             <div id="sampleWorksAdminList" class="space-y-3 pt-2"></div>
@@ -612,7 +617,6 @@
       telegram: `<svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.121l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.538-.196 1.006.128.832.942z"/></svg>`
     };
 
-    // Default Site Configuration
     const DEFAULT_DATA = {
       name: "Christine Bustillo",
       title: "Virtual Assistant",
@@ -658,16 +662,21 @@
 
     let siteData = DEFAULT_DATA;
     let isAuthenticated = false;
+    let stagedWorkImage = null; // Staged photo ready to add
 
-    // High-Efficiency Client-Side Image Compressor (Auto shapes & balances image memory)
-    function compressImageFile(file, maxDimension = 800, quality = 0.75) {
+    // Android-Safe Blob Image Compressor (Uses URL.createObjectURL instead of FileReader)
+    function processImageFileSafely(file, maxDimension = 800, quality = 0.75) {
       return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onerror = () => reject(new Error('Failed to read file'));
-        reader.onload = (event) => {
-          const img = new Image();
-          img.onerror = () => reject(new Error('Invalid image file format'));
-          img.onload = () => {
+        let objectUrl = null;
+        try {
+          objectUrl = URL.createObjectURL(file);
+        } catch (e) {
+          return reject(new Error('Device permission restricted file access.'));
+        }
+
+        const img = new Image();
+        img.onload = () => {
+          try {
             let width = img.width;
             let height = img.height;
             if (width > maxDimension || height > maxDimension) {
@@ -683,28 +692,38 @@
             canvas.width = width;
             canvas.height = height;
             const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, width, height);
             ctx.drawImage(img, 0, 0, width, height);
-            resolve(canvas.toDataURL('image/jpeg', quality));
-          };
-          img.src = event.target.result;
+            const dataUrl = canvas.toDataURL('image/jpeg', quality);
+            URL.revokeObjectURL(objectUrl);
+            resolve(dataUrl);
+          } catch (err) {
+            URL.revokeObjectURL(objectUrl);
+            reject(err);
+          }
         };
-        reader.readAsDataURL(file);
+        img.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          reject(new Error('Invalid image file.'));
+        };
+        img.src = objectUrl;
       });
     }
 
-    // Direct, Reliable Storage Engine
-    async function saveDataSafely(data) {
+    // Direct, Permanent Storage
+    function saveDataSafely(data) {
       try {
-        localStorage.setItem('va_portfolio_master_live_v1', JSON.stringify(data));
+        localStorage.setItem('va_portfolio_live_v2', JSON.stringify(data));
       } catch (e) {
-        console.warn('LocalStorage save error:', e);
+        console.warn('Storage warning:', e);
       }
     }
 
     function loadDataSafely() {
       try {
-        const local = localStorage.getItem('va_portfolio_master_live_v1') || 
-                      localStorage.getItem('va_portfolio_master_backup') || 
+        const local = localStorage.getItem('va_portfolio_live_v2') || 
+                      localStorage.getItem('va_portfolio_master_live_v1') || 
                       localStorage.getItem('va_portfolio_data_v3');
         if (local) return JSON.parse(local);
       } catch (e) {}
@@ -713,7 +732,6 @@
 
     document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-    // Upper-Right Menu Toggle
     function toggleProfileDropdown() {
       document.getElementById('profileDropdown').classList.toggle('hidden');
     }
@@ -759,7 +777,6 @@
       document.getElementById('aboutModal').classList.add('hidden');
     }
 
-    // Tab Switching inside Settings
     function switchTab(tabId) {
       document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
       document.querySelectorAll('[id^="btn-tab-"]').forEach(btn => {
@@ -776,7 +793,7 @@
       }
     }
 
-    // Render Website UI with Auto-Shaped Circle Profile Photo
+    // Render Website UI
     function renderWebsite() {
       document.getElementById('heroName').textContent = siteData.name;
       document.getElementById('heroTitle').textContent = siteData.title;
@@ -784,8 +801,7 @@
 
       const profileContainer = document.getElementById('profileImageDisplay');
       if (siteData.profileImage && siteData.profileImage.trim() !== '') {
-        // Auto-shaped to circle frame with object-cover and top alignment
-        profileContainer.innerHTML = `<img src="${siteData.profileImage}" alt="Profile" class="w-full h-full object-cover object-top rounded-full shadow-inner">`;
+        profileContainer.innerHTML = `<img src="${siteData.profileImage}" alt="Profile" class="w-full h-full object-cover object-top rounded-full">`;
       } else {
         profileContainer.innerHTML = `
           <div class="flex flex-col items-center justify-center text-neutral-500">
@@ -802,7 +818,7 @@
         </div>
       `).join('');
 
-      // Sample Works
+      // Sample Works Categories
       const sampleContainer = document.getElementById('sampleCategoriesContainer');
       sampleContainer.innerHTML = siteData.sampleCategories.map(cat => {
         let itemsHtml = '';
@@ -920,7 +936,6 @@
       switchTab('tab-home');
     }
 
-    // Explicit Log Out (Only triggers when clicking the Log Out button)
     function handleLogout() {
       isAuthenticated = false;
       document.getElementById('adminUsername').value = '';
@@ -950,34 +965,54 @@
       renderFeedbackAdminList();
     }
 
-    // Profile photo upload with instant circular shape & instant auto-save
+    // Automatic Pre-processing as soon as a file is selected
     document.addEventListener('DOMContentLoaded', () => {
+      // Profile Photo File Input
       const pInput = document.getElementById('profileFileInput');
       if (pInput) {
         pInput.addEventListener('change', async function() {
           if (this.files && this.files[0]) {
             try {
-              siteData.profileImage = await compressImageFile(this.files[0], 600, 0.75);
-              await saveDataSafely(siteData);
+              siteData.profileImage = await processImageFileSafely(this.files[0], 600, 0.75);
+              saveDataSafely(siteData);
               renderWebsite();
-              alert('Profile photo auto-shaped to circle! Tap "Save All Changes" to confirm.');
+              alert('Profile photo updated! Tap "Save All Changes" to confirm.');
             } catch (err) {
-              alert('Error processing photo: ' + err.message);
+              alert('Could not process photo: ' + err.message);
             }
           }
         });
       }
 
+      // About Photo File Input
       const aInput = document.getElementById('aboutFileInput');
       if (aInput) {
         aInput.addEventListener('change', async function() {
           if (this.files && this.files[0]) {
             try {
-              siteData.aboutImage = await compressImageFile(this.files[0], 800, 0.75);
-              await saveDataSafely(siteData);
+              siteData.aboutImage = await processImageFileSafely(this.files[0], 800, 0.75);
+              saveDataSafely(siteData);
               alert('About photo ready! Tap "Save All Changes" to confirm.');
             } catch (err) {
-              alert('Error processing photo: ' + err.message);
+              alert('Could not process photo: ' + err.message);
+            }
+          }
+        });
+      }
+
+      // Sample Work Photo File Input (Shows live thumbnail immediately)
+      const wInput = document.getElementById('workFileInput');
+      if (wInput) {
+        wInput.addEventListener('change', async function() {
+          if (this.files && this.files[0]) {
+            try {
+              stagedWorkImage = await processImageFileSafely(this.files[0], 800, 0.75);
+              const previewBox = document.getElementById('previewWorkBox');
+              const previewImg = document.getElementById('previewWorkImg');
+              previewImg.src = stagedWorkImage;
+              previewBox.classList.remove('hidden');
+            } catch (err) {
+              alert('Error reading screenshot: ' + err.message);
             }
           }
         });
@@ -999,7 +1034,7 @@
       alert('About photo removed.');
     }
 
-    // Add Image to Category & Auto-Persist immediately
+    // Add Image to Category & Auto-Persist Immediately
     async function addSampleWorkItem() {
       const categoryTitle = document.getElementById('workCategorySelect').value;
       const title = document.getElementById('workTitleInput').value.trim();
@@ -1009,39 +1044,46 @@
         alert('Please give your project screenshot a title.');
         return;
       }
-      if (!fileInput.files || fileInput.files.length === 0) {
-        alert('Please choose an image file from your device.');
-        return;
-      }
 
-      try {
-        const compressedUrl = await compressImageFile(fileInput.files[0], 800, 0.75);
-        let targetCat = siteData.sampleCategories.find(c => c.title === categoryTitle);
-
-        if (!targetCat) {
-          targetCat = { id: Date.now().toString(), title: categoryTitle, items: [] };
-          siteData.sampleCategories.push(targetCat);
+      if (!stagedWorkImage) {
+        if (!fileInput.files || fileInput.files.length === 0) {
+          alert('Please choose an image file from your device.');
+          return;
         }
-
-        if (!targetCat.items) targetCat.items = [];
-        targetCat.items.push({ id: Date.now(), title, url: compressedUrl });
-
-        // Save immediately to storage so it will never disappear
-        await saveDataSafely(siteData);
-
-        document.getElementById('workTitleInput').value = '';
-        fileInput.value = '';
-        renderSampleWorksAdminList();
-        renderWebsite();
-        alert('Image successfully added to ' + categoryTitle + '!');
-      } catch (err) {
-        alert('Could not process image: ' + err.message);
+        try {
+          stagedWorkImage = await processImageFileSafely(fileInput.files[0], 800, 0.75);
+        } catch (err) {
+          alert('Could not read image: ' + err.message);
+          return;
+        }
       }
+
+      let targetCat = siteData.sampleCategories.find(c => c.title === categoryTitle);
+      if (!targetCat) {
+        targetCat = { id: Date.now().toString(), title: categoryTitle, items: [] };
+        siteData.sampleCategories.push(targetCat);
+      }
+
+      if (!targetCat.items) targetCat.items = [];
+      targetCat.items.push({ id: Date.now(), title, url: stagedWorkImage });
+
+      // Save permanently to storage
+      saveDataSafely(siteData);
+
+      // Reset Form and Preview
+      document.getElementById('workTitleInput').value = '';
+      fileInput.value = '';
+      stagedWorkImage = null;
+      document.getElementById('previewWorkBox').classList.add('hidden');
+
+      renderSampleWorksAdminList();
+      renderWebsite();
+      alert('Image added to ' + categoryTitle + ' and saved permanently!');
     }
 
-    async function deleteWorkItem(catIndex, itemIndex) {
+    function deleteWorkItem(catIndex, itemIndex) {
       siteData.sampleCategories[catIndex].items.splice(itemIndex, 1);
-      await saveDataSafely(siteData);
+      saveDataSafely(siteData);
       renderSampleWorksAdminList();
       renderWebsite();
     }
@@ -1064,7 +1106,7 @@
     }
 
     // Feedback Management
-    async function addFeedbackItem() {
+    function addFeedbackItem() {
       const client = document.getElementById('feedbackClient').value.trim();
       const company = document.getElementById('feedbackCompany').value.trim();
       const text = document.getElementById('feedbackText').value.trim();
@@ -1075,7 +1117,7 @@
       }
 
       siteData.testimonials.push({ id: Date.now(), client, company, service: 'Email Management', text });
-      await saveDataSafely(siteData);
+      saveDataSafely(siteData);
       document.getElementById('feedbackClient').value = '';
       document.getElementById('feedbackCompany').value = '';
       document.getElementById('feedbackText').value = '';
@@ -1083,9 +1125,9 @@
       renderWebsite();
     }
 
-    async function deleteFeedbackItem(index) {
+    function deleteFeedbackItem(index) {
       siteData.testimonials.splice(index, 1);
-      await saveDataSafely(siteData);
+      saveDataSafely(siteData);
       renderFeedbackAdminList();
       renderWebsite();
     }
@@ -1104,7 +1146,7 @@
     }
 
     // Save All Changes (Keeps you logged in)
-    async function saveSettings() {
+    function saveSettings() {
       try {
         siteData.name = document.getElementById('inputName')?.value.trim() || siteData.name;
         siteData.title = document.getElementById('inputTitle')?.value.trim() || siteData.title;
@@ -1126,7 +1168,7 @@
           telegram: document.getElementById('inputTelegram')?.value.trim() || ''
         };
 
-        await saveDataSafely(siteData);
+        saveDataSafely(siteData);
         renderWebsite();
         closeSettingsModal();
         alert('All updates have been saved successfully!');
